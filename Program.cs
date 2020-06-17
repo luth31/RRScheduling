@@ -5,40 +5,22 @@ namespace RRScheduling
 {
     class Program
     {
-        static Dictionary<int,(String, Func<int>)> MenuTable;
         static void Main(string[] args)
         {
-            MenuTable = new Dictionary<int,(String, Func<int>)>();
+            MenuTable = new Dictionary<int,(String, Action<int>)>();
             BuildMenuTable();
-            //ShowMenu();
-            Scheduler s = new Scheduler(3);
-            s.AddTask(new Task("P1", 0, 10));
-            s.AddTask(new Task("P2", 1, 4));
-            s.AddTask(new Task("P3", 2, 5));
-            s.AddTask(new Task("P4", 3, 3));
-            /*s.AddTask(new Task("P1", 0, 4));
-            s.AddTask(new Task("P2", 0, 3));
-            s.AddTask(new Task("P3", 0, 5));*/
-            s.Begin();
+            Console.Clear();
+            ShowMenu();
         }
-        static int Test1() {
-            Console.WriteLine("test1");
-            return 0;
+        static void AddMenuItem(String str, Action<int> fn) {
+            MenuTable.Add(MenuTable.Count+1, (str, fn));
         }
-    
-        static int Test2() {
-            Console.WriteLine("test2");
-            return 0;
-        }
-        static void AddMenuItem(String str, Func<int> fn) {
-            MenuTable.Add(MenuTable.Count, (str, fn));
-        }
+
         static void BuildMenuTable() {
-            AddMenuItem("Test", Test1);
-            AddMenuItem("Test2", Test2);
-            AddMenuItem("Exit", () => {
-                Environment.Exit(0);
-                return 0; });
+            AddMenuItem("Run Scheduler", Scheduler);
+            AddMenuItem("Enable debug messages", ToggleDebugMessages);
+            AddMenuItem("Enable Idle mode", ToggleIdleMode);
+            AddMenuItem("Exit", ExitApp);
         }
         static void ShowMenu() {
             Console.WriteLine("Menu:");
@@ -58,7 +40,7 @@ namespace RRScheduling
                 InvalidSelection();
             }
             if (MenuTable.ContainsKey(selector)) {
-                MenuTable[selector].Item2();
+                MenuTable[selector].Item2(selector);
                 ShowMenu();
             }
             else
@@ -68,5 +50,35 @@ namespace RRScheduling
             Console.WriteLine("Invalid selection!");
             ReadSelection();
         }
+
+        // Selection handlers
+        static void Scheduler(int menuID) {
+            
+        }
+        static void ToggleDebugMessages(int menuID) {
+            // Toggle the bool
+            debugMessages = !debugMessages;
+            Console.Clear();
+            // Replace the Tuple with another composed of old Action<int> and new string
+            String str = (debugMessages ? "Disable" : "Enable") + " debug messages";
+            MenuTable[menuID] = (str, MenuTable[menuID].Item2);
+            ShowMenu();
+
+        }
+        static void ToggleIdleMode(int menuID) {
+            // Toggle the bool
+            idleMode = !idleMode;
+            Console.Clear();
+            // Replace the Tuple with another composed of old Action<int> and new string
+            String str = (idleMode ? "Disable" : "Enable") + " Idle mode";
+            MenuTable[menuID] = (str, MenuTable[menuID].Item2);
+            ShowMenu();
+        }
+        static void ExitApp(int menuID) {
+            Environment.Exit(0);
+        }
+        static bool idleMode = false;
+        static bool debugMessages = false;
+        static Dictionary<int,(String, Action<int>)> MenuTable;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RRScheduling {
     class Scheduler {
-        public Scheduler(int Quantum) {
+        public Scheduler(int Quantum, bool DebugMessages = false, bool IdleMode = true) {
             if (Quantum < 1)
                 Quantum = 1;
             this.Quantum = Quantum;
@@ -69,5 +69,7 @@ namespace RRScheduling {
         int ExecutionTime = 0;
         List<Task> taskList;
         Timeline Timeline;
+        bool idleMode;
+        bool debugMessages;
     }
 }
