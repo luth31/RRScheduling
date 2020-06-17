@@ -10,7 +10,16 @@ namespace RRScheduling
         {
             MenuTable = new Dictionary<int,(String, Func<int>)>();
             BuildMenuTable();
-            ShowMenu();
+            //ShowMenu();
+            Scheduler s = new Scheduler(3);
+            s.AddTask(new Task("P1", 0, 10));
+            s.AddTask(new Task("P2", 1, 4));
+            s.AddTask(new Task("P3", 2, 5));
+            s.AddTask(new Task("P4", 3, 3));
+            /*s.AddTask(new Task("P1", 0, 4));
+            s.AddTask(new Task("P2", 0, 3));
+            s.AddTask(new Task("P3", 0, 5));*/
+            s.Begin();
         }
         static int Test1() {
             Console.WriteLine("test1");
