@@ -3,7 +3,7 @@ using System;
 namespace RRScheduling {
     class Task {
         public Task(String Name, int StartTime, int BurstTime) {
-            Console.WriteLine("Created {0}: {1}-{2}", Name, StartTime, BurstTime);
+            Console.WriteLine("{0}:\t{1}\t{2}\t", Name, StartTime, BurstTime);
             this.Name = Name;
             this.StartTime = StartTime;
             this.BurstTime = BurstTime;

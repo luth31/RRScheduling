@@ -3,12 +3,14 @@ using System.Collections.Generic;
 
 namespace RRScheduling {
     class Scheduler {
-        public Scheduler(int Quantum, bool IdleMode = true) {
+        public Scheduler(int Quantum) {
             if (Quantum < 1)
                 Quantum = 1;
             this.Quantum = Quantum;
             taskList = new List<Task>();
             Timeline = new Timeline();
+            Console.WriteLine("Creating tasks...");
+            CConsole.Write(ConsoleColor.Green, "Name\tStart\tBurst\n");
             idleTask = new Task("Idle", 0, 0);
         }
         public void AddTask(Task task) {
@@ -23,6 +25,9 @@ namespace RRScheduling {
             taskList.Insert(0, task);
         }
         public void Begin() {
+            taskListCopy = new List<Task>(taskList);
+            int idleTime = 0;
+            CDebug.WriteLine(ConsoleColor.Yellow, "Debug information:");
             Debug.WriteLine("Quantum: {0}", Quantum);
             Queue<Task> taskQueue = new Queue<Task>();
             // Run this while as long as there are more than 0 elements in queue or list or nextTask isn't null (needed when there's only 1 element left)
@@ -44,13 +49,14 @@ namespace RRScheduling {
                     taskQueue.Enqueue(nextTask);
                     nextTask = null;
                 }
-                // There's nothing to execute so far, "sleep" (maybe I should also do that) until next task is due; TODO: Implement idleMode disabled
+                // There's nothing to execute so far, "sleep" (maybe I should also do that) until next task is due
                 if (taskQueue.Count == 0) {
                     var task = taskList[0];
                     Debug.WriteLine("Sleep: {0}-{1}", ExecutionTime, task.StartTime);
                     // Add slice for sleep time
                     Timeline.AddSlice(idleTask, ExecutionTime, task.StartTime);
-                    // "Jump" ExecutionTime to task.StartTime to simulate a sleep
+                    // "Jump" ExecutionTime to task.StartTime to simulate a sleep and add sum their difference to idleTime
+                    idleTime += task.StartTime - ExecutionTime;
                     ExecutionTime = task.StartTime;
                     continue;
                 }
@@ -71,16 +77,32 @@ namespace RRScheduling {
                 else
                     t.EndTime = ExecutionTime;
             }
+            Console.WriteLine("\nTimeline:");
+            CConsole.WriteLine(ConsoleColor.Red, "Name\tFrom\tTo");
             foreach (var slice in Timeline.History) {
-                Debug.WriteLine("{0}: {1}-{2}", slice.Item1.Name, slice.Item2, slice.Item3);
+                Console.WriteLine("{0}:\t{1}\t{2}\t", slice.Item1.Name, slice.Item2, slice.Item3);
             }
+            int sumWaitTime = 0;
+            Console.WriteLine("\nTasks stats:");
+            CConsole.WriteLine(ConsoleColor.Magenta, "Name\tCTime\tTATime\tWTime");
+            foreach (var task in taskListCopy) {
+                int turnAroundTime = (task.EndTime-task.StartTime);
+                int waitTime = turnAroundTime - task.BurstTime;
+                Console.WriteLine("{0}:\t{1}\t{2}\t{3}", task.Name, task.EndTime, turnAroundTime, waitTime);
+                sumWaitTime += waitTime;
+            }
+            Console.WriteLine("\nOverall stats:");
+            Console.WriteLine("Total execution time: {0}", ExecutionTime);
+            Console.WriteLine("Average wait time: {0}", sumWaitTime/taskListCopy.Count);
+            Console.WriteLine("Idle time: {0}", idleTime);
+            Console.ReadKey();
         }
         Task nextTask = null;
         Task idleTask;
         int Quantum = 0;
         int ExecutionTime = 0;
         List<Task> taskList;
+        List<Task> taskListCopy;
         Timeline Timeline;
-        bool idleMode;
     }
 }
