@@ -13,6 +13,7 @@ namespace RRScheduling {
         public int StartTime;
         public int BurstTime;
         public int ExecutedTime;
+        public int EndTime;
         public int remainingTime {
             get {
                 return BurstTime - ExecutedTime;
